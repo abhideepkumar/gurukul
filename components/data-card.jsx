@@ -1,22 +1,14 @@
 import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { InformationCircleIcon } from '@heroicons/react/24/solid';
+import { Card} from '@/components/ui/card';
 
 const DataCard = ({ subject, value, color }) => {
     return (
-        <Card className={`m-2 ${color}`}>
-            <CardHeader>
-                <div className="flex justify-between">
-                    <div>
-                        <CardTitle>{subject}</CardTitle>
-                    </div>
-                    <div>
-                        <InformationCircleIcon className="h-5 w-5 ml-5" />
-                    </div>
-                </div>
-                <CardDescription className="text-3xl font-semibold">{value}</CardDescription>
-            </CardHeader>
-        </Card>
+        <Card className={`${color} p-4 rounded-md border-none`}>
+        <div className="flex items-center justify-between">
+            <div className="text-slate-800 px-5">{subject}</div>
+            <div className="text-2xl font-semibold">{value}</div>
+        </div>
+    </Card>
     );
 };
 
