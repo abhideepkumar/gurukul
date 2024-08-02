@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverTrigger, PopoverContent } from '@radix-ui/react-popover';
 
 export default function AddStudentPage() {
     return (
@@ -26,7 +27,20 @@ export default function AddStudentPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="dob">Date of birth</Label>
-                            <Calendar mode="single" selected={new Date()} className="rounded-md border" />
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="outline" className="px-2 mx-2">
+                                        Select Date
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent>
+                                    <Calendar
+                                        mode="single"
+                                        selected={new Date()}
+                                        className="rounded-md border bg-white"
+                                    />
+                                </PopoverContent>
+                            </Popover>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="admission-no">Phone No.</Label>

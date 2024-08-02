@@ -23,7 +23,7 @@ const SideNav = () => {
                     <span>Students</span>
                 </Link>
                 <Link
-                    href="/create-fees"
+                    href="/fee-slabs"
                     className="flex items-center gap-2 font-medium text-foreground hover:bg-emerald-100 px-3 py-2 rounded-md"
                     prefetch={false}
                 >

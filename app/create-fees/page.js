@@ -13,7 +13,7 @@ export default function Showfees() {
                 </div>
                 <Link
                     href="/create-fees/new-fees"
-                    className="flex items-center align-middle hover:bg-white hover:text-black rounded-full p-3"
+                    className="flex items-center align-middle hover:bg-white hover:text-black rounded-full p-3 transition ease-in-out duration-300"
                 >
                     <p>Create New </p>
                     <PlusIcon className="w-5 h-5" />
@@ -72,7 +72,7 @@ export default function Showfees() {
                 </div>
                 <Link
                     href="/create-fees/new-class"
-                    className="flex items-center align-middle hover:bg-black hover:text-white rounded-full p-3"
+                    className="flex items-center align-middle hover:bg-black hover:text-white rounded-full p-3 transition ease-in-out duration-300"
                 >
                     <p>Create New </p>
                     <PlusIcon className="w-5 h-5" />
