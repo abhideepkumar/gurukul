@@ -12,28 +12,28 @@ const FeeSlabs = () => {
             <div className="flex justify-center items-center h-screen">
                 <Card className="w-full max-w-2xl p-6 sm:p-8 md:p-10 rounded-lg">
                     <CardHeader>
-                        <CardTitle className="text-2xl font-bold">Create FeeSlab</CardTitle>
+                        <CardTitle className="text-2xl font-bold">Create Fee Structure</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="grid gap-4">
                                 <div className="grid gap-2">
                                     <Label htmlFor="name">Name</Label>
-                                    <Input id="name" placeholder="Enter class name unique to fee slab" className="rounded-lg" />
+                                    <Input id="name" placeholder="Enter name unique to fee slab" className="rounded-lg" />
                                 </div>
-                                {/* <div className="grid gap-2">
-                                    <Label htmlFor="fees">Select Class</Label>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="fees">Select Recurrence type:</Label>
                                     <Select id="fees" className="rounded-lg">
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select Class" />
+                                            <SelectValue placeholder="Select Recurrence type" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="option1">Class 1</SelectItem>
-                                            <SelectItem value="option2">Class 2</SelectItem>
-                                            <SelectItem value="option3">Class 3</SelectItem>
+                                            <SelectItem value="monthly">monthly</SelectItem>
+                                            <SelectItem value="quarterly">quarterly</SelectItem>
+                                            <SelectItem value="anually">anually</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div> */}
+                                </div>
                             </div>
                             <div className="grid gap-4">
                                 <div className="">
@@ -77,7 +77,7 @@ const FeeSlabs = () => {
                         <Button variant="outline" className="text-red-500">
                             Cancel
                         </Button>
-                        <Button> Save</Button>
+                        <Button> Create</Button>
                     </CardFooter>
                 </Card>
             </div>

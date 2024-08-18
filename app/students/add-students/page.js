@@ -1,97 +1,130 @@
+'use client';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverTrigger, PopoverContent } from '@radix-ui/react-popover';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuRadioItem,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+const feeOptions = [
+    { label: '₹100', value: '100' },
+    { label: '₹200', value: '200' },
+    { label: '₹300', value: '300' },
+    { label: '₹400', value: '400' },
+    { label: '₹500', value: '500' },
+];
+
+const classOptions = [
+    { label: 'Class 1', value: '1' },
+    { label: 'Class 2', value: '2' },
+    { label: 'Class 3', value: '3' },
+];
 
 export default function AddStudentPage() {
+    const [selectedFees, setSelectedFees] = useState({});
+    const [selectedClass, setSelectedClass] = useState('');
+    const [dob, setDob] = useState(new Date());
+
+    const toggleFeeSelection = (feeValue) => {
+        setSelectedFees((prev) => ({
+            ...prev,
+            [feeValue]: !prev[feeValue],
+        }));
+    };
+
+    const selectedFeesText =
+        feeOptions
+            .filter((option) => selectedFees[option.value])
+            .map((option) => option.label)
+            .join(', ') || 'Select all fees that apply';
+
     return (
-        <div className="flex justify-center items-center min-h-screen ">
-            <Card className="w-full max-w-3xl rounded-lg shadow-md ">
+        <div className="flex justify-center items-center min-h-screen">
+            <Card className="w-full max-w-3xl rounded-lg shadow-md">
                 <CardHeader>
                     <CardTitle>Add a Student</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6 p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Name</Label>
-                            <Input id="name" placeholder="Enter student's name" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="admission-no">Admission No.</Label>
-                            <Input id="admission-no" placeholder="Enter admission number" />
-                        </div>
+                        <InputField id="name" label="Name" placeholder="Enter student's name" />
+                        <InputField id="admission-no" label="Admission Id." placeholder="Enter admission id" />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="dob">Date of birth</Label>
                             <Popover>
                                 <PopoverTrigger asChild>
-                                    <Button variant="outline" className="px-2 mx-2">
-                                        Select Date
+                                    <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                        {dob.toDateString()}
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent>
-                                    <Calendar
-                                        mode="single"
-                                        selected={new Date()}
-                                        className="rounded-md border bg-white"
-                                    />
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar mode="single" selected={dob} onSelect={setDob} initialFocus />
                                 </PopoverContent>
                             </Popover>
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="admission-no">Phone No.</Label>
-                            <Input id="phone-no" placeholder="Enter phone number" />
-                        </div>
+                        <InputField id="phone-no" label="Phone No." placeholder="Enter phone number" />
                     </div>
+                    <InputField id="fname" label="Father's Name" placeholder="Enter father's name" />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <Label htmlFor="f-name">{"Father's Name"}</Label>
-                            <Input id="f-name" placeholder="Enter father's name" />
+                            <Label htmlFor="class">Class:</Label>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                        {selectedClass || 'Select Class'}
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-56">
+                                    <DropdownMenuLabel>Select a Class/Grade</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    {classOptions.map((option) => (
+                                        <DropdownMenuRadioItem
+                                            key={option.value}
+                                            value={option.value}
+                                            onSelect={() => setSelectedClass(option.label)}
+                                        >
+                                            {option.label}
+                                        </DropdownMenuRadioItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="m-name">{"Mother's Name"}</Label>
-                            <Input id="m-name" placeholder="Enter mother's name" />
-                        </div>
+                        <InputField id="roll-no" label="Roll No. (optional)" placeholder="Enter roll number" />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <Label htmlFor="class">Class</Label>
-                            <Select id="class">
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select class" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="1">Class 1</SelectItem>
-                                    <SelectItem value="2">Class 2</SelectItem>
-                                    <SelectItem value="3">Class 3</SelectItem>
-                                    <SelectItem value="4">Class 4</SelectItem>
-                                    <SelectItem value="5">Class 5</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="roll-no">Roll No. (optional)</Label>
-                            <Input id="roll-no" placeholder="Enter roll number" />
-                        </div>
-                    </div>
+                    <InputField id="address" label="Address:" placeholder="Enter permanent address" />
                     <div className="space-y-2">
-                        <Label htmlFor="custom-fee">Add Custom Fee</Label>
-                        <Select id="custom-fee">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select custom fee" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="100">₹100</SelectItem>
-                                <SelectItem value="200">₹200</SelectItem>
-                                <SelectItem value="300">₹300</SelectItem>
-                                <SelectItem value="400">₹400</SelectItem>
-                                <SelectItem value="500">₹500</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <Label htmlFor="fee-structures">Add Fee Structures</Label>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                    {selectedFeesText}
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                                <DropdownMenuLabel>Select Fee Structures</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {feeOptions.map((option) => (
+                                    <DropdownMenuCheckboxItem
+                                        key={option.value}
+                                        checked={selectedFees[option.value]}
+                                        onCheckedChange={() => toggleFeeSelection(option.value)}
+                                    >
+                                        {option.label}
+                                    </DropdownMenuCheckboxItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </CardContent>
                 <CardFooter className="flex justify-end space-x-4 p-6">
@@ -104,3 +137,10 @@ export default function AddStudentPage() {
         </div>
     );
 }
+
+const InputField = ({ id, label, placeholder }) => (
+    <div className="space-y-2">
+        <Label htmlFor={id}>{label}</Label>
+        <Input id={id} placeholder={placeholder} />
+    </div>
+);

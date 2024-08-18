@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
@@ -11,7 +12,7 @@ const Students = () => {
                 <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
                     <Search />
                     <div className="flex items-center space-x-4">
-                        <Link href="/students/add-students" >
+                        <Link href="/students/add-students">
                             <div className="inline-flex items-center gap-2 px-4 py-2 border hover:bg-slate-100 rounded-md text-sm">
                                 <PlusIcon className="h-4 w-4" />
                                 Add a student

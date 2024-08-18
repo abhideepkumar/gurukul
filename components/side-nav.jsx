@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { DollarSignIcon, LayoutGridIcon, LogOutIcon, SettingsIcon, UsersIcon } from '@/assets/icons';
+import { DollarSignIcon, LayoutGridIcon, LogOutIcon, SettingsIcon, UsersIcon,ChalkboardIcon } from '@/assets/icons';
 
 const SideNav = () => {
     return (
@@ -21,6 +21,14 @@ const SideNav = () => {
                 >
                     <UsersIcon className="w-5 h-5" />
                     <span>Students</span>
+                </Link>
+                <Link
+                    href="/classes"
+                    className="flex items-center gap-2 font-medium text-foreground hover:bg-emerald-100 px-3 py-2 rounded-md"
+                    prefetch={false}
+                >
+                    <ChalkboardIcon className="w-5 h-5" />
+                    <span>Create class</span>
                 </Link>
                 <Link
                     href="/fee-slabs"
