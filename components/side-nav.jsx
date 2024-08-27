@@ -1,12 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { DollarSignIcon, LayoutGridIcon, LogOutIcon, SettingsIcon, UsersIcon, ChalkboardIcon } from '@/assets/icons';
+import Search from './searchbar';
 
 const SideNav = () => {
     return (
         <div className="sticky top-0">
             <aside className="bg-background border-r border-border flex flex-col justify-between py-6 px-4 w-20 sm:w-64 shrink-0 h-screen">
                 <nav className="space-y-4">
+                    <Search />
                     <Link
                         href="/"
                         className="flex items-center gap-2 font-medium text-foreground hover:bg-emerald-100 px-3 py-2 rounded-md"
