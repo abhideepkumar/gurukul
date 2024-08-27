@@ -90,6 +90,8 @@ export default function AddStudentPage() {
             await addNewStudent(formData);
             console.log('Form Data Submitted:', formData);
             localStorage.setItem('students', JSON.stringify(await fetchAllStudents()));
+            alert('Student added successfully!');
+            event.target.reset();
         } catch (err) {
             console.error('Error submitting data:', err);
         }
