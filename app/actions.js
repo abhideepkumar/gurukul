@@ -1,5 +1,5 @@
 'use server';
-import { createClient } from "./utils/supabase/server";
+import { createClient } from './utils/supabase/server';
 export async function showClasses() {
     const supabase = createClient();
     const { data, error } = await supabase.from('classes').select('*');
@@ -90,7 +90,7 @@ export async function addNewStudent({
         }
 
         console.log('Student added successfully:', data);
-        updateStudentFeeStatus({ admission_id, fees });
+        updateStudentFeeStatus({ admission_id, fees, academicYearStartMonth: 3 });
         return data;
     } catch (err) {
         console.error('Error adding student:', err.message);
@@ -99,15 +99,71 @@ export async function addNewStudent({
 }
 
 //add fee slab
-export async function updateStudentFeeStatus({ admission_id, fees }) {
-    console.log('Updating fee status:', { student_id:admission_id, slab_id:fees[0].slab_id });
+export async function updateStudentFeeStatus({ admission_id, fees, academicYearStartMonth = 3 }) {
+    console.log('Updating fee status:', { student_id: admission_id, slab_ids: fees, academicYearStartMonth });
     const supabase = createClient();
-   try{
-    console.log()
-   }
-   catch(error){
-console.log("Error:",error);
-   }
+
+    try {
+        for (const feeSlab of fees) {
+            const { slab_id, name, amount, recurrence } = feeSlab;
+
+            const dueDates = calculateDueDates(recurrence, academicYearStartMonth);
+
+            for (const dueDate of dueDates) {
+                const { data, error } = await supabase.from('student_fee_status').insert({
+                    student_id: admission_id,
+                    slab_id,
+                    due_date: dueDate,
+                    fee_amount: amount,
+                    is_paid: false,
+                });
+
+                if (error) throw error;
+            }
+
+            console.log(`Fee receipts created for slab: ${name}`);
+        }
+
+        return { success: true, message: 'Fee status updated successfully' };
+    } catch (error) {
+        console.error('Error updating fee status:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+function calculateDueDates(recurrence, academicYearStartMonth) {
+    const currentDate = new Date();
+    let academicYearStart = new Date(currentDate.getFullYear(), academicYearStartMonth, 1);
+
+    if (currentDate < academicYearStart) {
+        academicYearStart.setFullYear(academicYearStart.getFullYear() - 1);
+    }
+
+    const dueDates = [];
+
+    switch (recurrence) {
+        case 'monthly':
+            for (let i = 0; i < 12; i++) {
+                dueDates.push(new Date(academicYearStart.getFullYear(), academicYearStart.getMonth() + i, 15));
+            }
+            break;
+        case 'quarterly':
+            for (let i = 0; i < 12; i += 3) {
+                dueDates.push(new Date(academicYearStart.getFullYear(), academicYearStart.getMonth() + i, 15));
+            }
+            break;
+        case 'halfyearly':
+            dueDates.push(new Date(academicYearStart.getFullYear(), academicYearStart.getMonth(), 15));
+            dueDates.push(new Date(academicYearStart.getFullYear(), academicYearStart.getMonth() + 6, 1));
+            break;
+        case 'annually':
+            dueDates.push(new Date(academicYearStart.getFullYear() + 1, academicYearStart.getMonth() - 1, 15));
+            break;
+        default:
+            throw new Error(`Unknown recurrence type: ${recurrence}`);
+    }
+
+    return dueDates;
 }
 
 //fetch all students

@@ -57,8 +57,8 @@ const FeeSlabs = () => {
                                         <SelectContent>
                                             <SelectItem value="monthly">Monthly</SelectItem>
                                             <SelectItem value="quarterly">Quarterly</SelectItem>
+                                            <SelectItem value="halfyearly">Half-Yearly</SelectItem>
                                             <SelectItem value="annually">Annually</SelectItem>
-                                            <SelectItem value="oneTime">One Time</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
