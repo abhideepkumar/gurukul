@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { addFeeSlabs } from '../actions/page';
+import { addFeeSlabs } from '../actions';
 import AllFeeSlabsPage from './allFees';
 
 const FeeSlabs = () => {

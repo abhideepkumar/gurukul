@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { addClasses } from '../actions/page';
+import { addClasses } from '../actions';
 import AllClassesPage from './allClasses';
 const CreateClass = () => {
     const handleClasses = (event) => {

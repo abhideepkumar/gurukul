@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { handleFetchClasses } from '@/app/classes/allClasses';
 import { handleFetchFeeSlabs } from '@/app/fee-slabs/allFees';
-import { addNewStudent } from '@/app/actions/page';
+import { addNewStudent, fetchAllStudents } from '@/app/actions';
 
 const InputField = ({ id, label, placeholder }) => (
     <div className="space-y-2">
@@ -55,16 +55,20 @@ export default function AddStudentPage() {
         fetchData();
     }, []);
 
-    const toggleFeeSelection = (feeId) => {
-        setSelectedFees((prev) => ({
-            ...prev,
-            [feeId]: !prev[feeId],
-        }));
+    const toggleFeeSelection = (feeSlab) => {
+        setSelectedFees((prev) => {
+            const newSelectedFees = { ...prev };
+            if (newSelectedFees[feeSlab.slab_id]) {
+                delete newSelectedFees[feeSlab.slab_id];
+            } else {
+                newSelectedFees[feeSlab.slab_id] = feeSlab;
+            }
+            return newSelectedFees;
+        });
     };
 
     const selectedFeesText =
-        allFeeSlabs
-            .filter((slab) => selectedFees[slab.slab_id])
+        Object.values(selectedFees)
             .map((slab) => `${slab.name} - ₹${slab.amount}`)
             .join(', ') || 'Select all fees that apply';
 
@@ -79,12 +83,13 @@ export default function AddStudentPage() {
             classname: selectedClass,
             roll_number: event.target.roll_number.value,
             address: event.target.address.value,
-            fees: Object.keys(selectedFees).filter((feeId) => selectedFees[feeId]),
+            fees: Object.values(selectedFees),  // Sending full fee slab objects
         };
 
         try {
             await addNewStudent(formData);
             console.log('Form Data Submitted:', formData);
+            localStorage.setItem('students', JSON.stringify(await fetchAllStudents()));
         } catch (err) {
             console.error('Error submitting data:', err);
         }
@@ -174,8 +179,8 @@ export default function AddStudentPage() {
                                     {allFeeSlabs.map((slab) => (
                                         <DropdownMenuCheckboxItem
                                             key={slab.slab_id}
-                                            checked={selectedFees[slab.slab_id]}
-                                            onCheckedChange={() => toggleFeeSelection(slab.slab_id)}
+                                            checked={!!selectedFees[slab.slab_id]}
+                                            onCheckedChange={() => toggleFeeSelection(slab)}
                                         >
                                             {slab.name} - ₹{slab.amount}
                                         </DropdownMenuCheckboxItem>

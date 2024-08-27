@@ -1,5 +1,5 @@
 'use server';
-import { createClient } from '../utils/supabase/server';
+import { createClient } from "./utils/supabase/server";
 export async function showClasses() {
     const supabase = createClient();
     const { data, error } = await supabase.from('classes').select('*');
@@ -90,9 +90,36 @@ export async function addNewStudent({
         }
 
         console.log('Student added successfully:', data);
+        updateStudentFeeStatus({ admission_id, fees });
         return data;
     } catch (err) {
         console.error('Error adding student:', err.message);
         throw err;
+    }
+}
+
+//add fee slab
+export async function updateStudentFeeStatus({ admission_id, fees }) {
+    console.log('Updating fee status:', { student_id:admission_id, slab_id:fees[0].slab_id });
+    const supabase = createClient();
+   try{
+    console.log()
+   }
+   catch(error){
+console.log("Error:",error);
+   }
+}
+
+//fetch all students
+export async function fetchAllStudents() {
+    const supabase = createClient();
+
+    try {
+        const { data, error } = await supabase.from('students').select('*');
+        if (error) throw error;
+        return { success: true, data };
+    } catch (error) {
+        console.error('Error fetching students:', error);
+        return { success: false, error: error.message };
     }
 }
