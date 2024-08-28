@@ -80,7 +80,6 @@ export async function addNewStudent({
                     classname,
                     roll_number,
                     address,
-                    // fees: JSON.stringify(fees),
                 },
             ])
             .select();
@@ -176,6 +175,44 @@ export async function fetchAllStudents() {
         return { success: true, data };
     } catch (error) {
         console.error('Error fetching students:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function fetchAstudent(admission_id){
+    const supabase = createClient();
+    try {
+        const { data, error } = await supabase.from('students').select('*').eq('admission_id', admission_id);
+        if (error) throw error;
+        return { success: true, data };
+    } catch (error) {
+        console.error('Error fetching student:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function fetchFutureReceipts(admission_id) {
+    const supabase = createClient();
+
+    try {
+        const { data, error } = await supabase.from('student_fee_status').select('*').eq('student_id', admission_id);
+        if (error) throw error;
+        return { success: true, data };
+    } catch (error) {
+        console.error('Error fetching fee history:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function fetchFeeHistory(admission_id) {
+    const supabase = createClient();
+
+    try {
+        const { data, error } = await supabase.from('transactions').select('*').eq('student_id', admission_id);
+        if (error) throw error;
+        return { success: true, data };
+    } catch (error) {
+        console.error('Error fetching fee history:', error);
         return { success: false, error: error.message };
     }
 }

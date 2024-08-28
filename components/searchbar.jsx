@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { SearchIcon } from '@/assets/icons';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const Search = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +20,7 @@ const Search = () => {
         }
     }, [isOpen]);
 
-    // Filter students based on query
+    // Filter students based on query with debounce
     useEffect(() => {
         const debounceTimeout = setTimeout(() => {
             if (query.trim()) {
@@ -87,13 +88,15 @@ const Search = () => {
                             {filteredStudents.map((student) => (
                                 <li
                                     key={student.id}
-                                    className="p-2 border-b border-border hover:bg-gray-100  rounded-md"
+                                    className="p-2 border-b border-border hover:bg-gray-100 rounded-md"
                                 >
-                                    <div className="font-semibold">{student.full_name}</div>
-                                    <div className="text-sm text-muted-foreground">
-                                        Admission ID: {student.admission_id}, Class: {student.classname}, Phone:{' '}
-                                        {student.phone_no}, Father&apos;s Name: {student.fatherName}
-                                    </div>
+                                    <Link href={`/student-detail/?id=${student.admission_id}`} onClick={() => setIsOpen(false)}>
+                                        <div className="font-semibold">{student.full_name}</div>
+                                        <div className="text-sm text-muted-foreground">
+                                            Admission ID: {student.admission_id}, Class: {student.classname}, Phone:{' '}
+                                            {student.phone_no}, Father&apos;s Name: {student.fatherName}
+                                        </div>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
