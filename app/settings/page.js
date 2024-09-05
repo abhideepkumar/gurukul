@@ -1,9 +1,11 @@
-import React from 'react'
+import React from 'react';
 
 const SettingMenu = () => {
-  return (
-    <div className='text-3xl text-center p-5'>Settings</div>
-  )
-}
+    return (
+        <div>
+          <p>Setting Menu</p>
+        </div>
+    );
+};
 
-export default SettingMenu
+export default SettingMenu;

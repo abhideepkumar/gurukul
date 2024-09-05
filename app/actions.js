@@ -179,7 +179,7 @@ export async function fetchAllStudents() {
     }
 }
 
-export async function fetchAstudent(admission_id){
+export async function fetchAstudent(admission_id) {
     const supabase = createClient();
     try {
         const { data, error } = await supabase.from('students').select('*').eq('admission_id', admission_id);
@@ -213,6 +213,49 @@ export async function fetchFeeHistory(admission_id) {
         return { success: true, data };
     } catch (error) {
         console.error('Error fetching fee history:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function processPayment(studentId, selectedReceipts, totalAmount) {
+    console.log('StudentID:', studentId);
+    console.log('Selected:', selectedReceipts);
+    const supabase = createClient();
+    try {
+        // Insert into transactions table
+        const { data: transactionData, error: transactionError } = await supabase.from('transactions').insert({
+            student_id: studentId,
+            amount: totalAmount,
+            payment_time: new Date().toISOString(),
+            status: 'PAID',
+            reference_number: Date.now().toString(),
+            all_slabs: selectedReceipts,
+            payment_method: 'NA',
+            remark: 'Payment processed via web interface',
+        });
+
+        if (transactionError) throw transactionError;
+
+        // Update student_fee_status table
+        const updatePromises = selectedReceipts.map(receipt => 
+            supabase
+                .from('student_fee_status')
+                .update({ is_paid: true })
+                .eq('student_id', studentId)
+                .eq('slab_id', receipt.slab_id)
+                .eq('due_date', receipt.due_date)
+        );
+
+        const updateResults = await Promise.all(updatePromises);
+
+        const updateErrors = updateResults.filter(result => result.error);
+        if (updateErrors.length > 0) {
+            throw new Error('Error updating student_fee_status');
+        }
+
+        return { success: true, data: transactionData };
+    } catch (error) {
+        console.error('Error processing payment:', error);
         return { success: false, error: error.message };
     }
 }

@@ -1,7 +1,7 @@
 import { Inter } from 'next/font/google';
 import './globals.css';
 import SideNav from '@/components/side-nav';
-
+import Search from '@/components/searchbar';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
                     <div className="col-span-1">
                         <SideNav />
                     </div>
-                    <div className="col-span-4">{children}</div>
+                    <div className="col-span-4"><Search/>{children}</div>
                 </div>
             </body>
         </html>

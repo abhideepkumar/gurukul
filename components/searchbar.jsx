@@ -1,8 +1,8 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { SearchIcon } from '@/assets/icons';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -12,35 +12,33 @@ const Search = () => {
     const [students, setStudents] = useState([]);
     const [filteredStudents, setFilteredStudents] = useState([]);
 
-    // Fetch student data from localStorage
     useEffect(() => {
         const storedData = JSON.parse(localStorage.getItem('students'));
-        if (storedData && storedData.success) {
+        if (storedData?.success) {
             setStudents(storedData.data);
         }
     }, [isOpen]);
 
-    // Filter students based on query with debounce
+    const filterStudents = useCallback(() => {
+        if (query.trim()) {
+            const lowerCaseQuery = query.toLowerCase();
+            return students.filter(
+                (student) =>
+                    Object.values(student).some(
+                        (value) => typeof value === 'string' && value.toLowerCase().includes(lowerCaseQuery)
+                    )
+            );
+        }
+        return [];
+    }, [query, students]);
+
     useEffect(() => {
         const debounceTimeout = setTimeout(() => {
-            if (query.trim()) {
-                const lowerCaseQuery = query.toLowerCase();
-                const filtered = students.filter(
-                    (student) =>
-                        student.full_name.toLowerCase().includes(lowerCaseQuery) ||
-                        student.fatherName.toLowerCase().includes(lowerCaseQuery) ||
-                        student.admission_id.toLowerCase().includes(lowerCaseQuery) ||
-                        student.classname.toLowerCase().includes(lowerCaseQuery) ||
-                        student.phone_no.toLowerCase().includes(lowerCaseQuery),
-                );
-                setFilteredStudents(filtered);
-            } else {
-                setFilteredStudents([]);
-            }
+            setFilteredStudents(filterStudents());
         }, 300);
 
         return () => clearTimeout(debounceTimeout);
-    }, [query, students]);
+    }, [query, filterStudents]);
 
     // Open the search dialog with Ctrl + K
     useEffect(() => {
@@ -52,10 +50,7 @@ const Search = () => {
         };
 
         document.addEventListener('keydown', handleKeyDown);
-
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-        };
+        return () => document.removeEventListener('keydown', handleKeyDown);
     }, []);
 
     return (
@@ -63,10 +58,11 @@ const Search = () => {
             <DialogTrigger asChild className="w-full m-2">
                 <Button variant="outline" className="w-full flex items-center justify-center">
                     <SearchIcon className="mr-2 h-4 w-4" />
-                    Search
+                    Search to accept payment, view Student info and more
                     <span className="mx-2 text-xs text-muted-foreground">CTRL + K </span>
                 </Button>
             </DialogTrigger>
+            <DialogTitle></DialogTitle>
             <DialogContent className="flex justify-center items-center p-4">
                 <div className="w-full max-w-lg bg-white rounded-md shadow-lg p-4">
                     <div className="flex items-center justify-between">
@@ -75,7 +71,7 @@ const Search = () => {
                                 <SearchIcon className="mr-2 w-5 h-5 text-muted-foreground" />
                                 <Input
                                     type="search"
-                                    placeholder="Search a student to take actions"
+                                    placeholder="Search anything to take actions"
                                     className="w-full pl-4 pr-4 py-2 rounded-md border border-border focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}

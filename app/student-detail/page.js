@@ -1,5 +1,5 @@
 'use client';
-import React, { Suspense } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Accordion } from '@/components/ui/accordion';
@@ -8,18 +8,19 @@ import TransactionHistory from './TransactionHistory';
 import FutureReceipts from './futureReceipts';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { fetchAstudent } from '../actions';
 
 const StudentData = ({ id }) => {
-    const [student, setStudent] = React.useState(null);
-    const [errors, setErrors] = React.useState({});
+    const [student, setStudent] = useState(null);
+    const [errors, setErrors] = useState({});
 
-    React.useEffect(() => {
+    useEffect(() => {
         const fetchStudentData = async () => {
             if (!id) return;
             try {
                 const response = await fetchAstudent(id);
                 setStudent(response.data[0]);
-            } catch {
+            } catch (error) {
                 setErrors(prev => ({ ...prev, student: 'Failed to fetch student data' }));
             }
         };
@@ -72,12 +73,12 @@ const StudentData = ({ id }) => {
 const StudentDetailPage = () => {
     return (
         <Suspense fallback={<div className="container mx-auto p-4"><Skeleton className="w-full h-40" /></div>}>
-            <StudentDetailPageContent />
+            <StudentDetailContent />
         </Suspense>
     );
 };
 
-const StudentDetailPageContent = () => {
+const StudentDetailContent = () => {
     const searchParams = useSearchParams();
     const id = searchParams.get('id');
 
