@@ -1,58 +1,37 @@
 'use server';
 import { createClient } from './utils/supabase/server';
-export async function showClasses() {
+
+// Helper function to handle Supabase errors
+const handleSupabaseError = (error, operation) => {
+    console.error(`Error ${operation}:`, error);
+    return { success: false, error: error.message };
+};
+
+// Helper function for Supabase queries
+const supabaseQuery = async (queryFn) => {
     const supabase = createClient();
-    const { data, error } = await supabase.from('classes').select('*');
-    if (error) {
-        console.error('Error fetching classes:', error);
-        return { success: false, error: error.message };
+    try {
+        const result = await queryFn(supabase);
+        return { success: true, data: result.data };
+    } catch (error) {
+        return handleSupabaseError(error, 'executing query');
     }
-    console.log('Classes fetched:', data);
-    return { success: true, data };
-}
-export async function addClasses({ class_name, class_desc }) {
-    console.log('Adding class:', class_name, ' and', class_desc);
-    const supabase = createClient();
-    const { data, error } = await supabase
-        .from('classes')
-        .insert([{ class_name: class_name, class_desc: class_desc }])
-        .select();
+};
 
-    if (error) {
-        console.error('Error inserting class:', error);
-        return { success: false, error: error.message };
-    }
+export const showClasses = () => supabaseQuery((supabase) => supabase.from('classes').select('*'));
 
-    console.log('Class inserted:', data);
-    return { success: true, data };
-}
+export const addClasses = ({ class_name, class_desc }) =>
+    supabaseQuery((supabase) => supabase.from('classes').insert([{ class_name, class_desc }]).select());
 
-export async function showFeeSlabs() {
-    const supabase = createClient();
-    const { data, error } = await supabase.from('fee_slabs').select('*');
-    if (error) {
-        console.error('Error fetching fee structures:', error);
-        return { success: false, error: error.message };
-    }
-    console.log('Fee structures fetched:', data);
-    return { success: true, data };
-}
-export async function addFeeSlabs({ name, fees, feetype, description, remark }) {
-    console.log('Adding class:', name, fees, feetype, description, remark);
-    const supabase = createClient();
-    const { data, error } = await supabase
-        .from('fee_slabs')
-        .insert([{ name: name, amount: fees, recurrence: feetype, description: description, remark: remark }])
-        .select();
+export const showFeeSlabs = () => supabaseQuery((supabase) => supabase.from('fee_slabs').select('*'));
 
-    if (error) {
-        console.error('Error inserting fee structure:', error);
-        return { success: false, error: error.message };
-    }
-
-    console.log('Class inserted:', data);
-    return { success: true, data };
-}
+export const addFeeSlabs = ({ name, fees, feetype, description, remark }) =>
+    supabaseQuery((supabase) =>
+        supabase
+            .from('fee_slabs')
+            .insert([{ name, amount: fees, recurrence: feetype, description, remark }])
+            .select(),
+    );
 
 export async function addNewStudent({
     full_name,
@@ -65,36 +44,18 @@ export async function addNewStudent({
     address,
     fees,
 }) {
-    const supabase = createClient();
-    console.log({ full_name, admission_id, dob, phone_no, fatherName, classname, roll_number, address, fees });
-    try {
-        const { data, error } = await supabase
+    const result = await supabaseQuery((supabase) =>
+        supabase
             .from('students')
-            .insert([
-                {
-                    full_name,
-                    admission_id,
-                    dob,
-                    phone_no,
-                    fatherName,
-                    classname,
-                    roll_number,
-                    address,
-                },
-            ])
-            .select();
+            .insert([{ full_name, admission_id, dob, phone_no, fatherName, classname, roll_number, address }])
+            .select(),
+    );
 
-        if (error) {
-            throw new Error(error.message);
-        }
-
-        console.log('Student added successfully:', data);
-        updateStudentFeeStatus({ admission_id, fees, academicYearStartMonth: 3 });
-        return data;
-    } catch (err) {
-        console.error('Error adding student:', err.message);
-        throw err;
+    if (result.success) {
+        await updateStudentFeeStatus({ admission_id, fees, academicYearStartMonth: 3 });
     }
+
+    return result;
 }
 
 //add fee slab
@@ -165,57 +126,16 @@ function calculateDueDates(recurrence, academicYearStartMonth) {
     return dueDates;
 }
 
-//fetch all students
-export async function fetchAllStudents() {
-    const supabase = createClient();
+export const fetchAllStudents = () => supabaseQuery((supabase) => supabase.from('students').select('*'));
 
-    try {
-        const { data, error } = await supabase.from('students').select('*');
-        if (error) throw error;
-        return { success: true, data };
-    } catch (error) {
-        console.error('Error fetching students:', error);
-        return { success: false, error: error.message };
-    }
-}
+export const fetchAstudent = (admission_id) =>
+    supabaseQuery((supabase) => supabase.from('students').select('*').eq('admission_id', admission_id));
 
-export async function fetchAstudent(admission_id) {
-    const supabase = createClient();
-    try {
-        const { data, error } = await supabase.from('students').select('*').eq('admission_id', admission_id);
-        if (error) throw error;
-        return { success: true, data };
-    } catch (error) {
-        console.error('Error fetching student:', error);
-        return { success: false, error: error.message };
-    }
-}
+export const fetchFutureReceipts = (admission_id) =>
+    supabaseQuery((supabase) => supabase.from('student_fee_status').select('*').eq('student_id', admission_id));
 
-export async function fetchFutureReceipts(admission_id) {
-    const supabase = createClient();
-
-    try {
-        const { data, error } = await supabase.from('student_fee_status').select('*').eq('student_id', admission_id);
-        if (error) throw error;
-        return { success: true, data };
-    } catch (error) {
-        console.error('Error fetching fee history:', error);
-        return { success: false, error: error.message };
-    }
-}
-
-export async function fetchFeeHistory(admission_id) {
-    const supabase = createClient();
-
-    try {
-        const { data, error } = await supabase.from('transactions').select('*').eq('student_id', admission_id);
-        if (error) throw error;
-        return { success: true, data };
-    } catch (error) {
-        console.error('Error fetching fee history:', error);
-        return { success: false, error: error.message };
-    }
-}
+export const fetchFeeHistory = (admission_id) =>
+    supabaseQuery((supabase) => supabase.from('transactions').select('*').eq('student_id', admission_id));
 
 export async function processPayment(studentId, selectedReceipts, totalAmount) {
     console.log('StudentID:', studentId);
@@ -237,18 +157,18 @@ export async function processPayment(studentId, selectedReceipts, totalAmount) {
         if (transactionError) throw transactionError;
 
         // Update student_fee_status table
-        const updatePromises = selectedReceipts.map(receipt => 
+        const updatePromises = selectedReceipts.map((receipt) =>
             supabase
                 .from('student_fee_status')
                 .update({ is_paid: true })
                 .eq('student_id', studentId)
                 .eq('slab_id', receipt.slab_id)
-                .eq('due_date', receipt.due_date)
+                .eq('due_date', receipt.due_date),
         );
 
         const updateResults = await Promise.all(updatePromises);
 
-        const updateErrors = updateResults.filter(result => result.error);
+        const updateErrors = updateResults.filter((result) => result.error);
         if (updateErrors.length > 0) {
             throw new Error('Error updating student_fee_status');
         }
@@ -259,3 +179,13 @@ export async function processPayment(studentId, selectedReceipts, totalAmount) {
         return { success: false, error: error.message };
     }
 }
+
+export const makeDeposit = ({ amount, payment_method, reference_number, notes }) =>
+    supabaseQuery((supabase) =>
+        supabase.from('deposits').insert({ amount, payment_method, reference_number, notes }).select(),
+    );
+
+export const makeWithdrawal = ({ amount, withdrawal_method, recipient, purpose, notes }) =>
+    supabaseQuery((supabase) =>
+        supabase.from('withdrawals').insert({ amount, withdrawal_method, recipient, purpose, notes }).select(),
+    );
