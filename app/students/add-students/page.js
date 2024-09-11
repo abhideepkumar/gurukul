@@ -34,6 +34,7 @@ export default function AddStudentPage() {
     const [dob, setDob] = useState(new Date());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -169,7 +170,7 @@ export default function AddStudentPage() {
                         <InputField id="address" label="Address" placeholder="Enter permanent address" />
                         <div className="space-y-2">
                             <Label htmlFor="fee-structures">Add Fee Structures</Label>
-                            <DropdownMenu>
+                            <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="outline" className="w-full justify-start text-left font-normal">
                                         {selectedFeesText}
@@ -183,6 +184,7 @@ export default function AddStudentPage() {
                                             key={slab.slab_id}
                                             checked={!!selectedFees[slab.slab_id]}
                                             onCheckedChange={() => toggleFeeSelection(slab)}
+                                            onSelect={(event) => event.preventDefault()}
                                         >
                                             {slab.name} - ₹{slab.amount}
                                         </DropdownMenuCheckboxItem>

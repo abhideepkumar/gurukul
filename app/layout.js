@@ -2,6 +2,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import SideNav from '@/components/side-nav';
 import Search from '@/components/searchbar';
+import toast, { Toaster } from 'react-hot-toast';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -17,7 +18,11 @@ export default function RootLayout({ children }) {
                     <div className="col-span-1">
                         <SideNav />
                     </div>
-                    <div className="col-span-4"><Search/>{children}</div>
+                    <div className="col-span-4">
+                        <Search />
+                        {children}
+                    </div>
+                    <Toaster />
                 </div>
             </body>
         </html>

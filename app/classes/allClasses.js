@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { showClasses } from '../actions';
 import Link from 'next/link';
+import { Loader2 } from 'lucide-react';
 
 export const handleFetchClasses = async () => {
     try {
@@ -22,6 +23,8 @@ const AllClassesPage = () => {
     const [classes, setClasses] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const classesPerPage = 10;
 
     useEffect(() => {
         loadClasses();
@@ -51,6 +54,7 @@ const AllClassesPage = () => {
         try {
             const data = await handleFetchClasses();
             setClasses(data);
+            setCurrentPage(1);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -58,8 +62,11 @@ const AllClassesPage = () => {
         }
     };
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+    const indexOfLastClass = currentPage * classesPerPage;
+    const indexOfFirstClass = indexOfLastClass - classesPerPage;
+    const currentClasses = classes.slice(indexOfFirstClass, indexOfLastClass);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
         <Card className="w-full max-w-4xl mx-auto mt-8">
@@ -67,8 +74,8 @@ const AllClassesPage = () => {
                 <CardTitle className="text-2xl font-bold flex justify-between items-center">
                     All Classes
                     <div>
-                        <Button variant="outline" className="mr-2" onClick={refreshClasses}>
-                            Refresh
+                        <Button variant="outline" className="mr-2" onClick={refreshClasses} disabled={loading}>
+                            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Refresh'}
                         </Button>
                         <Link href="#create-class" className="p-2 border-2 text-sm rounded-full hover:bg-slate-100">
                             Create Class
@@ -77,6 +84,7 @@ const AllClassesPage = () => {
                 </CardTitle>
             </CardHeader>
             <CardContent>
+                {error && <div className="text-red-500 mb-4">{error}</div>}
                 <Table>
                     <TableCaption>A list of all classes</TableCaption>
                     <TableHeader>
@@ -88,7 +96,7 @@ const AllClassesPage = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {classes.map((classItem) => (
+                        {currentClasses.map((classItem) => (
                             <TableRow key={classItem.class_id}>
                                 <TableCell>{classItem.class_id}</TableCell>
                                 <TableCell>{classItem.class_name}</TableCell>
@@ -98,6 +106,18 @@ const AllClassesPage = () => {
                         ))}
                     </TableBody>
                 </Table>
+                <div className="flex justify-center mt-4">
+                    {Array.from({ length: Math.ceil(classes.length / classesPerPage) }, (_, i) => (
+                        <Button
+                            key={i}
+                            onClick={() => paginate(i + 1)}
+                            variant={currentPage === i + 1 ? 'default' : 'outline'}
+                            className="mx-1"
+                        >
+                            {i + 1}
+                        </Button>
+                    ))}
+                </div>
             </CardContent>
         </Card>
     );

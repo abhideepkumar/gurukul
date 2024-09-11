@@ -71,12 +71,6 @@ const FutureReceipts = ({ student_id }) => {
                                                 hidden="true"
                                             >
                                                 <div className="flex-shrink-0 mt-1">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedReceipts.includes(index)}
-                                                        onChange={() => {}}
-                                                        className="h-4 w-4"
-                                                    />
                                                 </div>
                                                 <div className="flex-grow">
                                                     <p>
