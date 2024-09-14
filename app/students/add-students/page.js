@@ -41,8 +41,8 @@ export default function AddStudentPage() {
             try {
                 await handleFetchClasses();
                 await handleFetchFeeSlabs();
-                const classesData = JSON.parse(localStorage.getItem('classes') || '[]');
-                const feeSlabsData = JSON.parse(localStorage.getItem('feeSlabs') || '[]');
+                const classesData = JSON.parse(sessionStorage.getItem('classes') || '[]');
+                const feeSlabsData = JSON.parse(sessionStorage.getItem('feeSlabs') || '[]');
                 setAllClasses(classesData);
                 setAllFeeSlabs(feeSlabsData);
             } catch (err) {
@@ -90,7 +90,7 @@ export default function AddStudentPage() {
         try {
             await addNewStudent(formData);
             console.log('Form Data Submitted:', formData);
-            localStorage.setItem('students', JSON.stringify(await fetchAllStudents()));
+            sessionStorage.setItem('students', JSON.stringify(await fetchAllStudents()));
             alert('Student added successfully!');
             event.target.reset();
         } catch (err) {

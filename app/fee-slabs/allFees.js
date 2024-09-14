@@ -10,7 +10,7 @@ export const handleFetchFeeSlabs = async () => {
     try {
         const { data, error } = await showFeeSlabs();
         if (error) throw error;
-        localStorage.setItem('feeSlabs', JSON.stringify(data));
+        sessionStorage.setItem('feeSlabs', JSON.stringify(data));
         return data;
     } catch (err) {
         console.error('Error fetching fee slabs:', err);
@@ -31,7 +31,7 @@ const AllFeeSlabsPage = () => {
         setLoading(true);
         setError(null);
         try {
-            const storedFeeSlabs = localStorage.getItem('feeSlabs');
+            const storedFeeSlabs = sessionStorage.getItem('feeSlabs');
             if (storedFeeSlabs) {
                 setFeeSlabs(JSON.parse(storedFeeSlabs));
             } else {

@@ -11,7 +11,7 @@ export const handleFetchClasses = async () => {
     try {
         const { data, error } = await showClasses();
         if (error) throw error;
-        localStorage.setItem('classes', JSON.stringify(data));
+        sessionStorage.setItem('classes', JSON.stringify(data));
         return data;
     } catch (err) {
         console.error('Error fetching classes:', err);
@@ -34,7 +34,7 @@ const AllClassesPage = () => {
         setLoading(true);
         setError(null);
         try {
-            const storedClasses = localStorage.getItem('classes');
+            const storedClasses = sessionStorage.getItem('classes');
             if (storedClasses) {
                 setClasses(JSON.parse(storedClasses));
             } else {

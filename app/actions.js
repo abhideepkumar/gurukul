@@ -12,7 +12,8 @@ const supabaseQuery = async (queryFn) => {
     const supabase = createClient();
     try {
         const result = await queryFn(supabase);
-        return { success: true, data: result.data };
+        console.log('Result for query:', result);
+        return result;
     } catch (error) {
         return handleSupabaseError(error, 'executing query');
     }
@@ -189,3 +190,18 @@ export const makeWithdrawal = ({ amount, withdrawal_method, recipient, purpose, 
     supabaseQuery((supabase) =>
         supabase.from('withdrawals').insert({ amount, withdrawal_method, recipient, purpose, notes }).select(),
     );
+
+//fetch last 10 transactions
+//need to fix this, in some cases this can work definitely wrong
+//solution: need a single table for both the tables
+export const lastTransactions = () => supabaseQuery((supabase) => supabase.from('financial_transactions').select('*').order('created_at', { ascending: false }).limit(10));
+
+export const financial_transaction = ({ transaction_type, amount, payment_method, person_involved, purpose, notes }) => {
+    console.log('financial_transaction:', transaction_type, amount, payment_method, person_involved, purpose, notes);
+    return supabaseQuery((supabase) =>
+        supabase
+            .from('financial_transactions')
+            .insert({ amount, transaction_type, payment_method, person_involved, purpose, notes })
+            .select()
+    );
+};

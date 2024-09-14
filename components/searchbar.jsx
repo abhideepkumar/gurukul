@@ -5,6 +5,7 @@ import { SearchIcon } from '@/assets/icons';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { lastTransactions } from '@/app/actions';
 
 const Search = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -13,7 +14,7 @@ const Search = () => {
     const [filteredStudents, setFilteredStudents] = useState([]);
 
     useEffect(() => {
-        const storedData = JSON.parse(localStorage.getItem('students'));
+        const storedData = JSON.parse(sessionStorage.getItem('students'));
         if (storedData?.success) {
             setStudents(storedData.data);
         }
