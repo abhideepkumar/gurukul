@@ -51,9 +51,12 @@ export async function addNewStudent({
             .insert([{ full_name, admission_id, dob, phone_no, fatherName, classname, roll_number, address }])
             .select(),
     );
-
-    if (result.success) {
+    console.log('Result for adding students:', result);
+    if (result?.error === null) {
+        console.log('Student added successfully');
         await updateStudentFeeStatus({ admission_id, fees, academicYearStartMonth: 3 });
+    } else {
+        return { error: result?.error };
     }
 
     return result;
@@ -184,14 +187,28 @@ export async function processPayment(studentId, selectedReceipts, totalAmount) {
 //fetch transactions
 //need to fix this, in some cases this can work definitely wrong
 //solution: need a single table for both the tables
-export const lastTransactions = (start, limit) => supabaseQuery((supabase) => supabase.from('financial_transactions').select('*').order('created_at', { ascending: false }).range(start,limit-1));
+export const lastTransactions = (start, limit) =>
+    supabaseQuery((supabase) =>
+        supabase
+            .from('financial_transactions')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .range(start, limit - 1),
+    );
 
-export const financial_transaction = ({ transaction_type, amount, payment_method, person_involved, purpose, notes }) => {
+export const financial_transaction = ({
+    transaction_type,
+    amount,
+    payment_method,
+    person_involved,
+    purpose,
+    notes,
+}) => {
     console.log('financial_transaction:', transaction_type, amount, payment_method, person_involved, purpose, notes);
     return supabaseQuery((supabase) =>
         supabase
             .from('financial_transactions')
             .insert({ amount, transaction_type, payment_method, person_involved, purpose, notes })
-            .select()
+            .select(),
     );
 };

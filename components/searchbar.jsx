@@ -5,7 +5,7 @@ import { SearchIcon } from '@/assets/icons';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { lastTransactions } from '@/app/actions';
+import { fetchAllStudents} from '@/app/actions';
 
 const Search = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -14,20 +14,27 @@ const Search = () => {
     const [filteredStudents, setFilteredStudents] = useState([]);
 
     useEffect(() => {
-        const storedData = JSON.parse(sessionStorage.getItem('students'));
-        if (storedData?.success) {
-            setStudents(storedData.data);
-        }
+        const checkStudents = async () => {
+            const storedData = JSON.parse(sessionStorage.getItem('students'));
+            console.log('storedData', storedData);
+            if (storedData?.success) {
+                setStudents(storedData.data);
+            } else {
+                const response = await fetchAllStudents();
+                setStudents(response.data);
+                sessionStorage.setItem('students', JSON.stringify(response));
+            }
+        };
+        checkStudents();
     }, [isOpen]);
 
     const filterStudents = useCallback(() => {
         if (query.trim()) {
             const lowerCaseQuery = query.toLowerCase();
-            return students.filter(
-                (student) =>
-                    Object.values(student).some(
-                        (value) => typeof value === 'string' && value.toLowerCase().includes(lowerCaseQuery)
-                    )
+            return students.filter((student) =>
+                Object.values(student).some(
+                    (value) => typeof value === 'string' && value.toLowerCase().includes(lowerCaseQuery),
+                ),
             );
         }
         return [];
@@ -87,7 +94,10 @@ const Search = () => {
                                     key={student.id}
                                     className="p-2 border-b border-border hover:bg-gray-100 rounded-md"
                                 >
-                                    <Link href={`/student-detail/?id=${student.admission_id}`} onClick={() => setIsOpen(false)}>
+                                    <Link
+                                        href={`/student-detail/?id=${student.admission_id}`}
+                                        onClick={() => setIsOpen(false)}
+                                    >
                                         <div className="font-semibold">{student.full_name}</div>
                                         <div className="text-sm text-muted-foreground">
                                             Admission ID: {student.admission_id}, Class: {student.classname}, Phone:{' '}

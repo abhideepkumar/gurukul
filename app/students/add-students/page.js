@@ -18,6 +18,7 @@ import {
 import { handleFetchClasses } from '@/app/classes/allClasses';
 import { handleFetchFeeSlabs } from '@/app/fee-slabs/allFees';
 import { addNewStudent, fetchAllStudents } from '@/app/actions';
+import toast from 'react-hot-toast';
 
 const InputField = ({ id, label, placeholder }) => (
     <div className="space-y-2">
@@ -88,14 +89,19 @@ export default function AddStudentPage() {
         };
 
         try {
-            await addNewStudent(formData);
-            console.log('Form Data Submitted:', formData);
+          const result=  await addNewStudent(formData);
+            console.log('Form Data Submitted:', result);
+            if(result.error!=null){
+                throw new Error(result.error.message);
+                
+            }
             sessionStorage.setItem('students', JSON.stringify(await fetchAllStudents()));
-            alert('Student added successfully!');
+            toast.success(`Student ${formData?.admission_id} added successfully!`)
             event.target.reset();
-        } catch (err) {
-            console.error('Error submitting data:', err);
-        }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            toast.error(error.message);
+    };
     };
 
     if (loading) return <div>Loading...</div>;
