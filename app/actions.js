@@ -181,20 +181,10 @@ export async function processPayment(studentId, selectedReceipts, totalAmount) {
     }
 }
 
-export const makeDeposit = ({ amount, payment_method, reference_number, notes }) =>
-    supabaseQuery((supabase) =>
-        supabase.from('deposits').insert({ amount, payment_method, reference_number, notes }).select(),
-    );
-
-export const makeWithdrawal = ({ amount, withdrawal_method, recipient, purpose, notes }) =>
-    supabaseQuery((supabase) =>
-        supabase.from('withdrawals').insert({ amount, withdrawal_method, recipient, purpose, notes }).select(),
-    );
-
-//fetch last 10 transactions
+//fetch transactions
 //need to fix this, in some cases this can work definitely wrong
 //solution: need a single table for both the tables
-export const lastTransactions = () => supabaseQuery((supabase) => supabase.from('financial_transactions').select('*').order('created_at', { ascending: false }).limit(10));
+export const lastTransactions = (start, limit) => supabaseQuery((supabase) => supabase.from('financial_transactions').select('*').order('created_at', { ascending: false }).range(start,limit-1));
 
 export const financial_transaction = ({ transaction_type, amount, payment_method, person_involved, purpose, notes }) => {
     console.log('financial_transaction:', transaction_type, amount, payment_method, person_involved, purpose, notes);

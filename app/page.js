@@ -9,13 +9,13 @@ export default function Home() {
                     href="/deposit"
                     className="inline-flex items-center gap-2 border-2 border-emerald-600 bg-green-100 hover:bg-green-200 rounded-md px-4 py-2 text-xl"
                 >
-                    Deposit Cash
+                    Deposit Money
                 </Link>
                 <Link
                     href="/withdraw"
                     className="inline-flex items-center gap-2 border-2 border-rose-600 bg-rose-100 hover:bg-rose-200 rounded-md px-4 py-2 text-xl"
                 >
-                    Withdraw Cash
+                    Withdraw Money
                 </Link>
             </div>
             <div>
