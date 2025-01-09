@@ -159,7 +159,7 @@ export default function PaymentsHistory() {
                     <div className="text-center text-red-500">{error}</div>
                 ) : (
                     <>
-                        <div className="">
+                        <div className="bg-gray-200 rounded-md p-1">
                             <PaginationControls
                                 currentPage={currentPage}
                                 onPageChange={handlePageChange}

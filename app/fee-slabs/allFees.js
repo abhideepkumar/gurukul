@@ -92,11 +92,11 @@ const AllFeeSlabsPage = () => {
                     <TableBody>
                         {feeSlabs.map((slab) => (
                             <TableRow key={slab.slab_id}>
-                                <TableCell>{slab.name}</TableCell>
-                                <TableCell>{slab.amount}</TableCell>
-                                <TableCell>{slab.recurrence}</TableCell>
+                                <TableCell className="text-green-600 font-semibold">{slab.name}</TableCell>
+                                <TableCell className="text-green-500 font-semibold">{slab.amount}</TableCell>
+                                <TableCell className="text-gray-700 font-semibold">{slab.recurrence}</TableCell>
                                 <TableCell>{slab.description}</TableCell>
-                                <TableCell>{slab.remark}</TableCell>
+                                <TableCell className='w-32'>{slab.remark || "No Remark"}</TableCell>
                                 <TableCell>{new Date(slab.created_at).toLocaleString()}</TableCell>
                             </TableRow>
                         ))}

@@ -7,21 +7,37 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { addFeeSlabs } from '../actions';
 import AllFeeSlabsPage from './allFees';
+import toast from 'react-hot-toast';
+import { EmptyValidator } from '@/utils/validate';
 
 const FeeSlabs = () => {
     const handleFeeStructure = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
+        // if(formData.)
         const data = {
             name: formData.get('name'),
             fees: formData.get('fees'),
             feetype: formData.get('feetype'),
             description: formData.get('description'),
-            remark: formData.get('remark'),
+            remark: formData.get('remark') || "No Remark",
         };
+        const check = await EmptyValidator(data)
+        console.log("Check",check)
         try {
-            await addFeeSlabs(data);
-            e.target.reset();
+            if(!check.status){
+                toast.error(check.message);
+                return;
+            }
+          const res=  await addFeeSlabs(data);
+          console.log("Clg",res)
+          if(res.status!=201)
+          {
+            console.error("Error in create fee slab:",res.error)
+            toast.error(`Error found: ${res.error}`)
+
+          }
+            // e.target.reset();
         } catch (error) {
             console.error('Error adding fee slab:', error);
         }
@@ -49,10 +65,10 @@ const FeeSlabs = () => {
                                     />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="feetype">Select Recurrence type:</Label>
+                                    <Label htmlFor="feetype" required>Select Recurrence type:</Label>
                                     <Select name="feetype">
                                         <SelectTrigger className="rounded-lg">
-                                            <SelectValue placeholder="Select Recurrence type" />
+                                            <SelectValue placeholder="Select Recurrence type"/>
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="monthly">Monthly</SelectItem>
