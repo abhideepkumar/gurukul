@@ -1,7 +1,5 @@
 "use server";
 import { createClient } from "./utils/supabase/server";
-import { parse } from "csv-parse/sync";
-import { revalidatePath } from "next/cache";
 
 // Helper function to handle Supabase errors
 const handleSupabaseError = (error, operation) => {

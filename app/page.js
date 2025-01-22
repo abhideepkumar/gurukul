@@ -1,5 +1,6 @@
 import PaymentsHistory from '@/components/payments';
 import Link from 'next/link';
+import { showClasses, showFeeSlabs } from '@/app/actions';
 
 export default function Home() {
     return (
@@ -24,3 +25,27 @@ export default function Home() {
         </main>
     );
 }
+
+export const handleFetchClasses = async () => {
+    try {
+        const { data, error } = await showClasses();
+        if (error) throw error;
+        sessionStorage.setItem('classes', JSON.stringify(data));
+        return data;
+    } catch (err) {
+        console.error('Error fetching classes:', err);
+        throw new Error('Failed to fetch classes');
+    }
+};
+
+export const handleFetchFeeSlabs = async () => {
+    try {
+        const { data, error } = await showFeeSlabs();
+        if (error) throw error;
+        sessionStorage.setItem('feeSlabs', JSON.stringify(data));
+        return data;
+    } catch (err) {
+        console.error('Error fetching fee slabs:', err);
+        throw new Error('Failed to fetch fee slabs');
+    }
+};

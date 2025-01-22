@@ -54,7 +54,6 @@ export default function ImportStudentsPage() {
       console.log("Parsed CSV Records:", records);
 
       const result = await processBulkAdmission(records);
-      console.log("Processing Result:", result);
       if (!result.success) {
         throw new Error(result.message);
       }

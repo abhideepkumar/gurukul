@@ -15,8 +15,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { handleFetchClasses } from '@/app/classes/allClasses';
-import { handleFetchFeeSlabs } from '@/app/fee-slabs/allFees';
+import { handleFetchClasses } from '@/app/page';
+import { handleFetchFeeSlabs } from '@/app/page';
 import { addNewStudent, fetchAllStudents } from '@/app/actions';
 import toast from 'react-hot-toast';
 
