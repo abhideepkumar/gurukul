@@ -57,7 +57,7 @@ CREATE TABLE students (
     address TEXT,
     dob DATE,
     classname VARCHAR NOT NULL,
-    "fatherName" VARCHAR,
+    fatherName VARCHAR,
     roll_number VARCHAR,
     FOREIGN KEY (classname) REFERENCES classes(class_name)
 );

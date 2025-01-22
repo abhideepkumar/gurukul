@@ -1,58 +1,77 @@
-'use client';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+"use client";
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardContent,
+} from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { addFeeSlabs } from '../actions';
 import AllFeeSlabsPage from './allFees';
 import toast from 'react-hot-toast';
-import { EmptyValidator } from '@/utils/validate';
+import { EmptyValidator } from '@/app/utils/validate';
 
 const FeeSlabs = () => {
     const handleFeeStructure = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        // if(formData.)
+
         const data = {
             name: formData.get('name'),
             fees: formData.get('fees'),
             feetype: formData.get('feetype'),
             description: formData.get('description'),
-            remark: formData.get('remark') || "No Remark",
+            remark: formData.get('remark') || 'No Remark',
         };
-        const check = await EmptyValidator(data)
-        console.log("Check",check)
+
         try {
-            if(!check.status){
+            // Validate form data
+            const check = await EmptyValidator(data);
+            if (!check.status) {
                 toast.error(check.message);
                 return;
             }
-          const res=  await addFeeSlabs(data);
-          console.log("Clg",res)
-          if(res.status!=201)
-          {
-            console.error("Error in create fee slab:",res.error)
-            toast.error(`Error found: ${res.error}`)
 
-          }
-            // e.target.reset();
+            // Add fee slab
+            const res = await addFeeSlabs(data);
+
+            if (res.status === 201) {
+                toast.success('Fee slab created successfully!');
+                e.target.reset(); // Reset the form
+            } else {
+                const errorMsg = res.error || 'An unexpected error occurred';
+                console.error('Error in create fee slab:', errorMsg);
+                toast.error(`Error: ${errorMsg}`);
+            }
         } catch (error) {
             console.error('Error adding fee slab:', error);
+            toast.error('Something went wrong. Please try again.');
         }
     };
 
     return (
         <div>
-            <AllFeeSlabsPage/>
-            <div className="flex justify-center items-center min-h-screen py-6" id='create-fees'>
+            <AllFeeSlabsPage />
+            <div className="flex justify-center items-center min-h-screen py-6" id="create-fees">
                 <Card className="w-full max-w-2xl p-6 sm:p-8 md:p-10 rounded-lg">
                     <CardHeader>
                         <CardTitle className="text-2xl font-bold">Create Fee Structure</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleFeeStructure}>
+                        <form
+                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                            onSubmit={handleFeeStructure}
+                        >
                             <div className="grid gap-4">
                                 <div className="grid gap-2">
                                     <Label htmlFor="name">Name</Label>
@@ -65,10 +84,10 @@ const FeeSlabs = () => {
                                     />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="feetype" required>Select Recurrence type:</Label>
+                                    <Label htmlFor="feetype">Select Recurrence Type:</Label>
                                     <Select name="feetype">
                                         <SelectTrigger className="rounded-lg">
-                                            <SelectValue placeholder="Select Recurrence type"/>
+                                            <SelectValue placeholder="Select Recurrence Type" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="monthly">Monthly</SelectItem>

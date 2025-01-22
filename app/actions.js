@@ -1,40 +1,53 @@
-'use server';
-import { createClient } from './utils/supabase/server';
+"use server";
+import { createClient } from "./utils/supabase/server";
+import { parse } from "csv-parse/sync";
+import { revalidatePath } from "next/cache";
 
 // Helper function to handle Supabase errors
 const handleSupabaseError = (error, operation) => {
-    console.error(`Error ${operation}:`, error);
-    return { success: false, error: error.message };
+  console.error(`Error ${operation}:`, error);
+  return { success: false, error: error.message };
 };
 
 // Helper function for Supabase queries
 const supabaseQuery = async (queryFn) => {
-    const supabase = createClient();
-    try {
-        const result = await queryFn(supabase);
-        console.log('Result for query:', result);
-        return result;
-    } catch (error) {
-        return handleSupabaseError(error, 'executing query');
-    }
+  const supabase = createClient();
+  try {
+    const result = await queryFn(supabase);
+    console.log("Result for query:", result);
+    return result;
+  } catch (error) {
+    return handleSupabaseError(error, "executing query");
+  }
 };
 
-export const showClasses = () => supabaseQuery((supabase) => supabase.from('classes').select('*'));
+export const showClasses = () => supabaseQuery((supabase) => supabase.from("classes").select("*"));
 
 export const addClasses = ({ class_name, class_desc }) =>
-    supabaseQuery((supabase) => supabase.from('classes').insert([{ class_name, class_desc }]).select());
+  supabaseQuery((supabase) => supabase.from("classes").insert([{ class_name, class_desc }]).select());
 
-export const showFeeSlabs = () => supabaseQuery((supabase) => supabase.from('fee_slabs').select('*'));
+export const showFeeSlabs = () => supabaseQuery((supabase) => supabase.from("fee_slabs").select("*"));
 
 export const addFeeSlabs = ({ name, fees, feetype, description, remark }) =>
-    supabaseQuery((supabase) =>
-        supabase
-            .from('fee_slabs')
-            .insert([{ name, amount: fees, recurrence: feetype, description, remark }])
-            .select(),
-    );
+  supabaseQuery((supabase) =>
+    supabase
+      .from("fee_slabs")
+      .insert([{ name, amount: fees, recurrence: feetype, description, remark }])
+      .select()
+  );
 
 export async function addNewStudent({
+  full_name,
+  admission_id,
+  dob,
+  phone_no,
+  fatherName,
+  classname,
+  roll_number,
+  address,
+  fees,
+}) {
+  console.log("Adding new student:", {
     full_name,
     admission_id,
     dob,
@@ -44,171 +57,259 @@ export async function addNewStudent({
     roll_number,
     address,
     fees,
-}) {
-    const result = await supabaseQuery((supabase) =>
-        supabase
-            .from('students')
-            .insert([{ full_name, admission_id, dob, phone_no, fatherName, classname, roll_number, address }])
-            .select(),
-    );
-    console.log('Result for adding students:', result);
-    if (result?.error === null) {
-        console.log('Student added successfully');
-        await updateStudentFeeStatus({ admission_id, fees, academicYearStartMonth: 3 });
-    } else {
-        return { error: result?.error };
-    }
+  });
+  const result = await supabaseQuery((supabase) =>
+    supabase
+      .from("students")
+      .insert([{ full_name, admission_id, dob, phone_no, fatherName, classname, roll_number, address }])
+      .select()
+  );
+  console.log("Result for adding students:", result);
+  if (result?.error === null) {
+    console.log("Student added successfully");
+    await updateStudentFeeStatus({ admission_id, fees, academicYearStartMonth: 3 });
+  } else {
+    return { error: result?.error };
+  }
 
-    return result;
+  return result;
 }
 
 //add fee slab
 export async function updateStudentFeeStatus({ admission_id, fees, academicYearStartMonth = 3 }) {
-    console.log('Updating fee status:', { student_id: admission_id, slab_ids: fees, academicYearStartMonth });
-    const supabase = createClient();
+  console.log("Updating fee status:", { student_id: admission_id, slab_ids: fees, academicYearStartMonth });
+  const supabase = createClient();
 
-    try {
-        for (const feeSlab of fees) {
-            const { slab_id, name, amount, recurrence } = feeSlab;
+  try {
+    for (const feeSlab of fees) {
+      const { slab_id, name, amount, recurrence } = feeSlab;
 
-            const dueDates = calculateDueDates(recurrence, academicYearStartMonth);
+      const dueDates = calculateDueDates(recurrence, academicYearStartMonth);
 
-            for (const dueDate of dueDates) {
-                const { data, error } = await supabase.from('student_fee_status').insert({
-                    student_id: admission_id,
-                    slab_id,
-                    due_date: dueDate,
-                    fee_amount: amount,
-                    is_paid: false,
-                });
+      for (const dueDate of dueDates) {
+        const { data, error } = await supabase.from("student_fee_status").insert({
+          student_id: admission_id,
+          slab_id,
+          due_date: dueDate,
+          fee_amount: amount,
+          is_paid: false,
+        });
 
-                if (error) throw error;
-            }
+        if (error) throw error;
+      }
 
-            console.log(`Fee receipts created for slab: ${name}`);
-        }
-
-        return { success: true, message: 'Fee status updated successfully' };
-    } catch (error) {
-        console.error('Error updating fee status:', error);
-        return { success: false, error: error.message };
+      console.log(`Fee receipts created for slab: ${name}`);
     }
+
+    return { success: true, message: "Fee status updated successfully" };
+  } catch (error) {
+    console.error("Error updating fee status:", error);
+    return { success: false, error: error.message };
+  }
 }
 
 function calculateDueDates(recurrence, academicYearStartMonth) {
-    const currentDate = new Date();
-    let academicYearStart = new Date(currentDate.getFullYear(), academicYearStartMonth, 1);
+  const currentDate = new Date();
+  let academicYearStart = new Date(currentDate.getFullYear(), academicYearStartMonth, 1);
 
-    if (currentDate < academicYearStart) {
-        academicYearStart.setFullYear(academicYearStart.getFullYear() - 1);
-    }
+  if (currentDate < academicYearStart) {
+    academicYearStart.setFullYear(academicYearStart.getFullYear() - 1);
+  }
 
-    const dueDates = [];
+  const dueDates = [];
 
-    switch (recurrence) {
-        case 'monthly':
-            for (let i = 0; i < 12; i++) {
-                dueDates.push(new Date(academicYearStart.getFullYear(), academicYearStart.getMonth() + i, 15));
-            }
-            break;
-        case 'quarterly':
-            for (let i = 0; i < 12; i += 3) {
-                dueDates.push(new Date(academicYearStart.getFullYear(), academicYearStart.getMonth() + i, 15));
-            }
-            break;
-        case 'halfyearly':
-            dueDates.push(new Date(academicYearStart.getFullYear(), academicYearStart.getMonth(), 15));
-            dueDates.push(new Date(academicYearStart.getFullYear(), academicYearStart.getMonth() + 6, 1));
-            break;
-        case 'annually':
-            dueDates.push(new Date(academicYearStart.getFullYear() + 1, academicYearStart.getMonth() - 1, 15));
-            break;
-        default:
-            throw new Error(`Unknown recurrence type: ${recurrence}`);
-    }
+  switch (recurrence) {
+    case "monthly":
+      for (let i = 0; i < 12; i++) {
+        dueDates.push(new Date(academicYearStart.getFullYear(), academicYearStart.getMonth() + i, 15));
+      }
+      break;
+    case "quarterly":
+      for (let i = 0; i < 12; i += 3) {
+        dueDates.push(new Date(academicYearStart.getFullYear(), academicYearStart.getMonth() + i, 15));
+      }
+      break;
+    case "halfyearly":
+      dueDates.push(new Date(academicYearStart.getFullYear(), academicYearStart.getMonth(), 15));
+      dueDates.push(new Date(academicYearStart.getFullYear(), academicYearStart.getMonth() + 6, 1));
+      break;
+    case "annually":
+      dueDates.push(new Date(academicYearStart.getFullYear() + 1, academicYearStart.getMonth() - 1, 15));
+      break;
+    default:
+      throw new Error(`Unknown recurrence type: ${recurrence}`);
+  }
 
-    return dueDates;
+  return dueDates;
 }
 
-export const fetchAllStudents = () => supabaseQuery((supabase) => supabase.from('students').select('*'));
+export const fetchAllStudents = () => supabaseQuery((supabase) => supabase.from("students").select("*"));
 
 export const fetchAstudent = (admission_id) =>
-    supabaseQuery((supabase) => supabase.from('students').select('*').eq('admission_id', admission_id));
+  supabaseQuery((supabase) => supabase.from("students").select("*").eq("admission_id", admission_id));
 
 export const fetchFutureReceipts = (admission_id) =>
-    supabaseQuery((supabase) => supabase.from('student_fee_status').select('*').eq('student_id', admission_id));
+  supabaseQuery((supabase) => supabase.from("student_fee_status").select("*").eq("student_id", admission_id));
 
 export const fetchFeeHistory = (admission_id) =>
-    supabaseQuery((supabase) => supabase.from('transactions').select('*').eq('student_id', admission_id));
+  supabaseQuery((supabase) => supabase.from("transactions").select("*").eq("student_id", admission_id));
 
 export async function processPayment(studentId, selectedReceipts, totalAmount) {
-    console.log('StudentID:', studentId);
-    console.log('Selected:', selectedReceipts);
-    const supabase = createClient();
-    try {
-        // Insert into transactions table
-        const { data: transactionData, error: transactionError } = await supabase.from('transactions').insert({
-            student_id: studentId,
-            amount: totalAmount,
-            payment_time: new Date().toISOString(),
-            status: 'PAID',
-            reference_number: Date.now().toString(),
-            all_slabs: selectedReceipts,
-            payment_method: 'NA',
-            remark: 'Payment processed via web interface',
-        });
+  console.log("StudentID:", studentId);
+  console.log("Selected:", selectedReceipts);
+  const supabase = createClient();
+  try {
+    // Insert into transactions table
+    const { data: transactionData, error: transactionError } = await supabase.from("transactions").insert({
+      student_id: studentId,
+      amount: totalAmount,
+      payment_time: new Date().toISOString(),
+      status: "PAID",
+      reference_number: Date.now().toString(),
+      all_slabs: selectedReceipts,
+      payment_method: "NA",
+      remark: "Payment processed via web interface",
+    });
 
-        if (transactionError) throw transactionError;
+    if (transactionError) throw transactionError;
 
-        // Update student_fee_status table
-        const updatePromises = selectedReceipts.map((receipt) =>
-            supabase
-                .from('student_fee_status')
-                .update({ is_paid: true })
-                .eq('student_id', studentId)
-                .eq('slab_id', receipt.slab_id)
-                .eq('due_date', receipt.due_date),
-        );
+    // Update student_fee_status table
+    const updatePromises = selectedReceipts.map((receipt) =>
+      supabase
+        .from("student_fee_status")
+        .update({ is_paid: true })
+        .eq("student_id", studentId)
+        .eq("slab_id", receipt.slab_id)
+        .eq("due_date", receipt.due_date)
+    );
 
-        const updateResults = await Promise.all(updatePromises);
+    const updateResults = await Promise.all(updatePromises);
 
-        const updateErrors = updateResults.filter((result) => result.error);
-        if (updateErrors.length > 0) {
-            throw new Error('Error updating student_fee_status');
-        }
-
-        return { success: true, data: transactionData };
-    } catch (error) {
-        console.error('Error processing payment:', error);
-        return { success: false, error: error.message };
+    const updateErrors = updateResults.filter((result) => result.error);
+    if (updateErrors.length > 0) {
+      throw new Error("Error updating student_fee_status");
     }
+
+    return { success: true, data: transactionData };
+  } catch (error) {
+    console.error("Error processing payment:", error);
+    return { success: false, error: error.message };
+  }
 }
 
 //fetch transactions
 //need to fix this, in some cases this can work definitely wrong
 //solution: need a single table for both the tables
 export const lastTransactions = (start, limit) =>
-    supabaseQuery((supabase) =>
-        supabase
-            .from('financial_transactions')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .range(start, limit - 1),
-    );
+  supabaseQuery((supabase) =>
+    supabase
+      .from("financial_transactions")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .range(start, limit - 1)
+  );
 
 export const financial_transaction = ({
-    transaction_type,
-    amount,
-    payment_method,
-    person_involved,
-    purpose,
-    notes,
+  transaction_type,
+  amount,
+  payment_method,
+  person_involved,
+  purpose,
+  notes,
 }) => {
-    console.log('financial_transaction:', transaction_type, amount, payment_method, person_involved, purpose, notes);
-    return supabaseQuery((supabase) =>
-        supabase
-            .from('financial_transactions')
-            .insert({ amount, transaction_type, payment_method, person_involved, purpose, notes })
-            .select(),
-    );
+  console.log("financial_transaction:", transaction_type, amount, payment_method, person_involved, purpose, notes);
+  return supabaseQuery((supabase) =>
+    supabase
+      .from("financial_transactions")
+      .insert({ amount, transaction_type, payment_method, person_involved, purpose, notes })
+      .select()
+  );
 };
+
+// Fetch fee slab details based on fee names (from parsed CSV)
+async function getFeeSlabDetails(feeNames) {
+  console.log("Fetching fee slabs for: ", feeNames);
+  
+  if (!feeNames.length) return []; // If no fee names, return empty array
+
+  try {
+    // Fetch fee slabs from the database (using showFeeSlabs utility)
+    const { data, error } = await showFeeSlabs();
+
+    if (error) throw new Error(`Error fetching fee slabs: ${error.message}`);
+    
+    // Filter fee slabs based on the feeNames provided
+    const feeSlabs = data.filter((slab) => feeNames.includes(slab.name));
+
+    return feeSlabs;
+  } catch (error) {
+    console.error("Error fetching fee slabs:", error);
+    throw new Error(`Error fetching fee slabs: ${error.message}`);
+  }
+}
+
+// Process student records (already parsed in frontend)
+async function processBulkAdmission(records) {
+  console.log("Processing records: ", records);
+
+  try {
+    if (!records.length) throw new Error("No valid student records found.");
+
+    const failedRecords = [];
+
+    for (const record of records) {
+      try {
+        // Ensure fee_types exist and fetch fee slabs
+        const feeNames = (record.fee_types || "")
+          .split(",")
+          .map((f) => f.trim())
+          .filter(Boolean);
+
+        const feeSlabs = feeNames.length ? await getFeeSlabDetails(feeNames) : [];
+
+        // Convert DOB safely
+        const dob = record.dob ? new Date(record.dob) : null;
+        if (!dob || isNaN(dob)) throw new Error("Invalid DOB format.");
+
+        // Construct student data
+        const studentData = {
+          full_name: record.full_name,
+          admission_id: record.admission_id,
+          dob,
+          phone_no: record.phone_no,
+          fatherName: record.fatherName,
+          classname: record.classname,
+          roll_number: record.roll_number,
+          address: record.address,
+          fees: feeSlabs, // Add fee slabs directly
+        };
+
+        console.log("Student data structure: ", studentData);
+        
+        // Call addNewStudent function to insert student and update fee status
+        const result = await addNewStudent(studentData);
+
+        if (result.error) {
+          failedRecords.push({ ...record, success: false, error: result.error });
+        }
+      } catch (error) {
+        failedRecords.push({ ...record, success: false, error: error.message });
+      }
+    }
+
+    // Return success message & failed records if any
+    return {
+      success: true,
+      message: `${records.length - failedRecords.length} students processed successfully.`,
+      report: {
+        failed: failedRecords.length,
+        report: failedRecords,
+      },
+    };
+  } catch (error) {
+    console.error("Bulk admission error:", error);
+    return { success: false, message: error.message };
+  }
+}
+
+export { processBulkAdmission };
