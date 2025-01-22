@@ -5,6 +5,7 @@ import { PlusIcon, FilePenIcon, TrashIcon } from '@/assets/icons';
 import Link from 'next/link';
 
 export default function Showfees() {
+    //an approach with combined fees slab and classes to simplify admission
     return (
         <div className="flex flex-col min-h-screen m-5">
             <header className="bg-black text-primary-foreground px-6 py-4 flex items-center justify-between">
