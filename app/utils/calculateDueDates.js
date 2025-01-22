@@ -1,5 +1,5 @@
 
-export default function calculateDueDates(recurrence, academicYearStartMonth) {
+export function calculateDueDates(recurrence, academicYearStartMonth) {
     const currentDate = new Date();
     let academicYearStart = new Date(currentDate.getFullYear(), academicYearStartMonth, 1);
   

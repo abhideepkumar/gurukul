@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import toast from "react-hot-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { showFeeSlabs, addFeeSlabs } from "../actions";
+import { showFeeSlabs, addFeeSlab } from "../actions/feeActions";
 import { EmptyValidator } from "@/app/utils/validate";
 
 const fetcher = async () => {
@@ -56,7 +56,7 @@ const FeeSlabsManagement = () => {
         return;
       }
 
-      const res = await addFeeSlabs(data);
+      const res = await addFeeSlab(data);
 
       if (res.status === 201) {
         toast.success("Fee slab created successfully!");

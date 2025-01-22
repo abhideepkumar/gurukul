@@ -1,5 +1,5 @@
 "use server";
-import { supabaseQuery } from "./utils";
+import { supabaseQuery } from "@/app/utils/utils";
 import { updateStudentFeeStatus } from "./feeActions";
 
 export async function addNewStudent({
@@ -31,7 +31,7 @@ export async function addNewStudent({
 
 export const fetchAllStudents = () => supabaseQuery((supabase) => supabase.from("students").select("*"));
 
-export const fetchAStudent = (admission_id) =>
+export const fetchAstudent = (admission_id) =>
   supabaseQuery((supabase) => supabase.from("students").select("*").eq("admission_id", admission_id));
 
 export const fetchFutureReceipts = (admission_id) =>

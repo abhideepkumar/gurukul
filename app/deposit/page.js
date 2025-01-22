@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { financial_transaction } from '../actions';
+import { addFinancialTransaction  } from '../actions/financialActions';
 import { toast } from 'react-hot-toast';
 
 const DepositPage = () => {
@@ -15,7 +15,7 @@ const DepositPage = () => {
         const formData = new FormData(e.target);
 
         try {
-            const result = await financial_transaction({
+            const result = await addFinancialTransaction ({
                 transaction_type: 'deposit',
                 amount: parseFloat(formData.get('amount')),
                 payment_method: formData.get('paymentMethod'),

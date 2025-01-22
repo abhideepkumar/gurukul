@@ -1,6 +1,7 @@
 import PaymentsHistory from '@/components/payments';
 import Link from 'next/link';
-import { showClasses, showFeeSlabs } from '@/app/actions';
+import { showFeeSlabs } from './actions/feeActions';
+import { showClasses } from './actions/classActions';
 
 export default function Home() {
     return (

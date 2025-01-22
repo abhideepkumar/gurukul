@@ -1,5 +1,5 @@
 "use server";
-import { supabaseQuery } from "./utils";
+import { supabaseQuery } from "@/app/utils/utils";
 
 export const showClasses = () => supabaseQuery((supabase) => supabase.from("classes").select("*"));
 

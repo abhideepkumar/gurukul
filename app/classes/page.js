@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "react-hot-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { showClasses, addClasses } from "../actions";
+import { showClasses, addClass } from "../actions/classActions";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -48,7 +48,7 @@ const ClassManagement = () => {
     };
 
     try {
-      await addClasses(data);
+      await addClass(data);
       toast.success("Class created successfully!");
       setIsOpen(false);
       revalidateClasses();

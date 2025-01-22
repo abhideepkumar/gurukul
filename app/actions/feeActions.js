@@ -71,7 +71,7 @@ export async function processPayment(studentId, selectedReceipts, totalAmount) {
 
     const updateResults = await Promise.all(updatePromises);
     const updateErrors = updateResults.filter((result) => result.error);
-    
+
     if (updateErrors.length > 0) {
       throw new Error("Error updating student_fee_status");
     }

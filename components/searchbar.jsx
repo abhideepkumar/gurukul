@@ -5,7 +5,7 @@ import { SearchIcon } from '@/assets/icons';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { fetchAllStudents} from '@/app/actions';
+import { fetchAllStudents} from '@/app/actions/studentActions';
 
 const Search = () => {
     const [isOpen, setIsOpen] = useState(false);

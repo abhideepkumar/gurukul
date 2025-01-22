@@ -8,7 +8,7 @@ async function getFeeSlabDetails(feeNames) {
   try {
     const { data, error } = await showFeeSlabs();
     if (error) throw new Error(`Error fetching fee slabs: ${error.message}`);
-    
+
     return data.filter((slab) => feeNames.includes(slab.name));
   } catch (error) {
     console.error("Error fetching fee slabs:", error);
@@ -45,7 +45,7 @@ export async function processBulkAdmission(records) {
           address: record.address,
           fees: feeSlabs,
         };
-        
+
         const result = await addNewStudent(studentData);
 
         if (result.error) {

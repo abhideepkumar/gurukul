@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon, Loader2, FileIcon } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-hot-toast";
-import { processBulkAdmission } from "@/app/actions";
+import { processBulkAdmission } from "@/app/actions/bulkActions";
 import { parse } from "csv-parse/sync";
 
 export default function ImportStudentsPage() {

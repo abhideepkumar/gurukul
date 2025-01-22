@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { lastTransactions } from "@/app/actions";
+import { lastTransactions } from "@/app/actions/financialActions";
 
 const ITEMS_PER_PAGE = 10;
 
