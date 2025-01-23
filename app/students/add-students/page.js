@@ -4,8 +4,6 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -15,10 +13,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { handleFetchClasses } from "@/app/page";
-import { handleFetchFeeSlabs } from "@/app/page";
+import { showFeeSlabs } from "@/app/actions/feeActions";
+import { showClasses } from "@/app/actions/classActions";
 import { addNewStudent, fetchAllStudents } from "@/app/actions/studentActions";
 import toast from "react-hot-toast";
+import { YearPicker } from "@/components/ui/year-picker";
+import { handleFetch } from "@/app/utils/handleFetch";
 
 const InputField = ({ id, label, placeholder }) => (
   <div className="space-y-2">
@@ -40,12 +40,13 @@ export default function AddStudentPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await handleFetchClasses();
-        await handleFetchFeeSlabs();
+        await handleFetch(showClasses, "classes", "add");
+        await handleFetch(showFeeSlabs, "feeSlabs", "add");
+        await handleFetch(fetchAllStudents, "students", "add");
         const classesData = JSON.parse(sessionStorage.getItem("classes") || "[]");
         const feeSlabsData = JSON.parse(sessionStorage.getItem("feeSlabs") || "[]");
-        setAllClasses(classesData);
-        setAllFeeSlabs(feeSlabsData);
+        setAllClasses(classesData.data);
+        setAllFeeSlabs(feeSlabsData.data);
       } catch (err) {
         setError("Failed to load data");
         console.error("Error fetching data:", err);
@@ -94,7 +95,6 @@ export default function AddStudentPage() {
       if (result.error != null) {
         throw new Error(result.error.message);
       }
-      sessionStorage.setItem("students", JSON.stringify(await fetchAllStudents()));
       toast.success(`Student ${formData?.admission_id} added successfully!`);
       event.target.reset();
     } catch (error) {
@@ -121,16 +121,7 @@ export default function AddStudentPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="dob">Date of Birth</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-left font-normal">
-                      {dob.toDateString()}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar mode="single" selected={dob} onSelect={(date) => date && setDob(date)} initialFocus />
-                  </PopoverContent>
-                </Popover>
+                <YearPicker date={dob} setDate={setDob} />
               </div>
               <InputField id="phone_no" label="Phone Number" placeholder="Enter phone number" />
             </div>
@@ -147,7 +138,7 @@ export default function AddStudentPage() {
                   <DropdownMenuContent className="w-56">
                     <DropdownMenuLabel>Select a Class/Grade</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {allClasses.map((option) => (
+                    {allClasses?.map((option) => (
                       <DropdownMenuRadioItem
                         key={option.class_id}
                         value={option.class_name}
@@ -173,7 +164,7 @@ export default function AddStudentPage() {
                 <DropdownMenuContent className="w-56">
                   <DropdownMenuLabel>Select Fee Structures</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {allFeeSlabs.map((slab) => (
+                  {allFeeSlabs?.map((slab) => (
                     <DropdownMenuCheckboxItem
                       key={slab.slab_id}
                       checked={!!selectedFees[slab.slab_id]}
