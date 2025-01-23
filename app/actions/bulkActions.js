@@ -21,6 +21,7 @@ export async function processBulkAdmission(records) {
     if (!records.length) throw new Error("No valid student records found.");
 
     const failedRecords = [];
+    const passedRecords = [];
 
     for (const record of records) {
       try {
@@ -48,11 +49,15 @@ export async function processBulkAdmission(records) {
 
         const result = await addNewStudent(studentData);
 
+        if (result.status === 201) {
+          console.log("Student added successfully:", result.data);
+          passedRecords.push({ ...record, success: true, message: result.statusText });
+        }
         if (result.error) {
-          failedRecords.push({ ...record, success: false, error: result.error });
+          failedRecords.push({ ...record, success: false, message: result.error });
         }
       } catch (error) {
-        failedRecords.push({ ...record, success: false, error: error.message });
+        failedRecords.push({ ...record, success: false, message: error.message });
       }
     }
 
@@ -61,7 +66,9 @@ export async function processBulkAdmission(records) {
       message: `${records.length - failedRecords.length} students processed successfully.`,
       report: {
         failed: failedRecords.length,
-        report: failedRecords,
+        passed: passedRecords.length,
+        failedRecords,
+        passedRecords,
       },
     };
   } catch (error) {

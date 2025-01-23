@@ -1,89 +1,84 @@
-"use client";
-import { useState, useCallback } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PlusIcon, Loader2, FileIcon } from "lucide-react";
-import { useDropzone } from "react-dropzone";
-import { toast } from "react-hot-toast";
-import { processBulkAdmission } from "@/app/actions/bulkActions";
-import { parse } from "csv-parse/sync";
+"use client"
+import { useState, useCallback } from "react"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { PlusIcon, Loader2, FileIcon } from "lucide-react"
+import { useDropzone } from "react-dropzone"
+import { toast } from "react-hot-toast"
+import { processBulkAdmission } from "@/app/actions/bulkActions"
+import { parse } from "csv-parse/sync"
+import { ImportResultsTable } from "./ImportResultsTable"
 
 export default function ImportStudentsPage() {
-  const [file, setFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [file, setFile] = useState(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [importResults, setImportResults] = useState({ passedRecords: [], failedRecords: [] })
 
   const onDrop = useCallback((acceptedFiles) => {
-    const selectedFile = acceptedFiles[0];
+    const selectedFile = acceptedFiles[0]
     if (selectedFile?.type !== "text/csv") {
-      toast.error("Please upload a CSV file");
-      return;
+      toast.error("Please upload a CSV file")
+      return
     }
-    setFile(selectedFile);
-    console.log("Selected file:", selectedFile);
-  }, []);
+    setFile(selectedFile)
+    console.log("Selected file:", selectedFile)
+  }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "text/csv": [".csv"] },
     maxFiles: 1,
-  });
+  })
 
   const handleImport = async () => {
     if (!file) {
-      toast.error("No file selected");
-      return;
+      toast.error("No file selected")
+      return
     }
 
     try {
-      console.log("File:", file);
-      setIsUploading(true);
-      const fileContent = await file.text();
-      console.log("File Content:", fileContent);
+      console.log("File:", file)
+      setIsUploading(true)
+      const fileContent = await file.text()
+      console.log("File Content:", fileContent)
       if (!fileContent.trim()) {
-        throw new Error("The uploaded file is empty or invalid.");
+        throw new Error("The uploaded file is empty or invalid.")
       }
-      
-      const records =await parse(fileContent.trim(), {
+
+      const records = await parse(fileContent.trim(), {
         columns: true,
         skip_empty_lines: true,
         relax_column_count: true,
         trim: true,
         bom: true,
-      });
+      })
 
-      console.log("Parsed CSV Records:", records);
+      console.log("Parsed CSV Records:", records)
 
-      const result = await processBulkAdmission(records);
+      const result = await processBulkAdmission(records)
       if (!result.success) {
-        throw new Error(result.message);
+        throw new Error(result.message)
       }
 
-      toast.success(`Processed ${result.message}`);
+      toast.success(`Processed ${result.message}`)
+      console.log("Import Result:", result)
 
-      // Handle failed records
-      if (result.report?.failed > 0) {
-        const failedResults = result.report.report.filter((r) => !r.success);
-        const blob = new Blob([JSON.stringify(failedResults, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `failed-imports-${Date.now()}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
+      setImportResults({
+        passedRecords: result.report?.passedRecords || [],
+        failedRecords: result.report?.failedRecords || [],
+      })
     } catch (error) {
-      console.error("CSV Parsing Error:", error);
-      toast.error(error.message || "Failed to process file");
+      console.error("CSV Parsing Error:", error)
+      toast.error(error.message || "Failed to process file")
     } finally {
-      setIsUploading(false);
+      setIsUploading(false)
     }
-  };
+  }
 
   const handleCancel = () => {
-    setFile(null);
-  };
+    setFile(null)
+    setImportResults({ passedRecords: [], failedRecords: [] })
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
@@ -122,6 +117,13 @@ export default function ImportStudentsPage() {
               )}
             </div>
           </div>
+
+          {(importResults.passedRecords.length > 0 || importResults.failedRecords.length > 0) && (
+            <ImportResultsTable
+              passedRecords={importResults.passedRecords}
+              failedRecords={importResults.failedRecords}
+            />
+          )}
         </CardContent>
 
         <CardFooter className="flex justify-end gap-4 py-4">
@@ -141,5 +143,6 @@ export default function ImportStudentsPage() {
         </CardFooter>
       </Card>
     </div>
-  );
+  )
 }
+
