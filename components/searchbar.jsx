@@ -87,6 +87,11 @@ const Search = () => {
                             </div>
                         </div>
                     </div>
+                    {filteredStudents.length==0 && query!=="" && (
+                        <div className="mt-4 text-sm text-muted-foreground">
+                            No results found for &quot;{query}&quot;
+                        </div>
+                    )}
                     {filteredStudents.length > 0 && (
                         <ul className="mt-4 max-h-60 overflow-y-auto">
                             {filteredStudents.map((student) => (
