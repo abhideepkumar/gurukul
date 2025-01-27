@@ -8,7 +8,15 @@ const ITEMS_PER_PAGE = 10;
 
 const TransactionRow = ({ transaction }) => (
   <TableRow>
-    <TableCell>{transaction.created_at.slice(0, 16)}</TableCell>
+    <TableCell>
+      <div className="font-medium">{new Date(transaction.created_at).toLocaleDateString()}</div>
+      <div className="text-sm pt-2">
+        {new Date(transaction.created_at).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </div>
+    </TableCell>
     <TableCell>{transaction.person_involved}</TableCell>
     <TableCell className={transaction.transaction_type === "withdrawal" ? "text-red-500" : "text-green-500"}>
       {transaction.transaction_type}

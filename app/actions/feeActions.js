@@ -44,7 +44,8 @@ export async function updateStudentFeeStatus({ admission_id, fees, academicYearS
   }
 }
 
-export async function processPayment(studentId, selectedReceipts, totalAmount) {
+export async function processPayment(paymentData) {
+  const { studentId, selectedReceipts, totalAmount, paymentMode, remark } = paymentData;
   const supabase = createClient();
   try {
     const { data: transactionData, error: transactionError } = await supabase.from("transactions").insert({
@@ -54,8 +55,8 @@ export async function processPayment(studentId, selectedReceipts, totalAmount) {
       status: "PAID",
       reference_number: Date.now().toString(),
       all_slabs: selectedReceipts,
-      payment_method: "NA",
-      remark: "Payment processed via web interface",
+      payment_method:paymentMode,
+      remark,
     });
 
     if (transactionError) throw transactionError;
