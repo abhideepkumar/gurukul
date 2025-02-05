@@ -106,7 +106,7 @@ const Search = () => {
           />
         </div>
         {filteredStudents.length === 0 && query !== "" && (
-          <div className="mt-4 text-sm text-muted-foreground">No results found for "{query}"</div>
+          <div className="mt-4 text-sm text-muted-foreground">No results found for {query}</div>
         )}
         {filteredStudents.length > 0 && (
           <ul className="mt-4 max-h-60 overflow-y-auto">
