@@ -4,7 +4,7 @@ import SideNav from '@/components/side-nav';
 import Search from '@/components/searchbar';
 import toast, { Toaster } from 'react-hot-toast';
 const inter = Inter({ subsets: ['latin'] });
-export const runtime = "edge";
+
 export const metadata = {
     title: 'Gurukul',
     description: 'School Fee Management System',
