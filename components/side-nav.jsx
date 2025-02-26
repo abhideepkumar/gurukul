@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { DollarSignIcon, LayoutGridIcon, LogOutIcon, SettingsIcon, UsersIcon, ChalkboardIcon } from '@/assets/icons';
+import { DollarSignIcon, LayoutGridIcon, LogOutIcon,LoginInIcon, SettingsIcon, UsersIcon, ChalkboardIcon } from '@/assets/icons';
 
 const SideNav = () => {
     return (
@@ -54,6 +54,13 @@ const SideNav = () => {
                 >
                     <LogOutIcon className="w-5 h-5" />
                     <span className="hidden md:block text-sm font-medium text-foreground">Log out</span>
+                </Link>
+                <Link 
+                    href="/login" 
+                    className="flex items-center justify-center md:justify-start gap-2 px-2 md:px-3 py-2 rounded-md hover:bg-green-200"
+                >
+                    <LoginInIcon className="w-5 h-5" />
+                    <span className="hidden md:block text-sm font-medium text-foreground">Log in</span>
                 </Link>
             </aside>
         </div>
