@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "pages:build": "npx @cloudflare/next-on-pages"
+    "pages:build": "npx @cloudflare/next-on-pages",
+    "preview": "npm run pages:build && wrangler pages dev .vercel/output/static",
+    "deploy": "npm run build && npm run pages:build && wrangler pages deploy .vercel/output/static"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.3",
