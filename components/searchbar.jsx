@@ -1,11 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { SearchIcon } from "@/assets/icons";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { fetchAllStudents } from "@/app/actions/studentActions";
+import Fuse from "fuse.js";
 
 const Search = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +14,27 @@ const Search = () => {
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+
+  // Fuse.js configuration
+  const fuseOptions = {
+    keys: [
+      { name: "full_name", weight: 0.4 },
+      { name: "admission_id", weight: 0.3 },
+      { name: "phone_no", weight: 0.2 },
+      { name: "classname", weight: 0.1 },
+    ],
+    threshold: 0.4, 
+    distance: 100,
+    includeScore: true,
+    includeMatches: true,
+    minMatchCharLength: 1,
+    shouldSort: true,
+  };
+
+  // Create Fuse instance
+  const fuse = useMemo(() => {
+    return students.length > 0 ? new Fuse(students, fuseOptions) : null;
+  }, [students]);
 
   useEffect(() => {
     const checkStudents = async () => {
@@ -30,13 +52,9 @@ const Search = () => {
 
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
-      if (query.trim()) {
-        const lowerCaseQuery = query.toLowerCase();
-        const filtered = students.filter((student) =>
-          Object.values(student).some(
-            (value) => typeof value === "string" && value.toLowerCase().includes(lowerCaseQuery)
-          )
-        );
+      if (query.trim() && fuse) {
+        const results = fuse.search(query);
+        const filtered = results.map(result => result.item);
         setFilteredStudents(filtered);
         setSelectedIndex(-1); // Reset selection when results change
       } else {
@@ -46,7 +64,7 @@ const Search = () => {
     }, 300);
 
     return () => clearTimeout(debounceTimeout);
-  }, [query, students]);
+  }, [query, fuse]);
 
   const handleKeyDown = (e) => {
     if (filteredStudents.length === 0) return;

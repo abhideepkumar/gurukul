@@ -39,29 +39,29 @@ const SideNav = () => {
                         <DollarSignIcon className="w-5 h-5" />
                         <span className="hidden md:block text-sm">Create fees</span>
                     </Link>
-                    <Link
+                    {/* <Link
                         href="/settings"
                         className="flex items-center justify-center md:justify-start gap-2 font-medium text-foreground hover:bg-emerald-100 px-2 md:px-3 py-2 rounded-md"
                         prefetch={false}
                     >
                         <SettingsIcon className="w-5 h-5" />
                         <span className="hidden md:block text-sm">Settings</span>
-                    </Link>
+                    </Link> */}
                 </nav>
-                <Link 
+                {/* <Link 
                     href="/logout" 
                     className="flex items-center justify-center md:justify-start gap-2 px-2 md:px-3 py-2 rounded-md hover:bg-red-200"
                 >
                     <LogOutIcon className="w-5 h-5" />
                     <span className="hidden md:block text-sm font-medium text-foreground">Log out</span>
-                </Link>
-                <Link 
+                </Link> */}
+                {/* <Link 
                     href="/login" 
                     className="flex items-center justify-center md:justify-start gap-2 px-2 md:px-3 py-2 rounded-md hover:bg-green-200"
                 >
                     <LoginInIcon className="w-5 h-5" />
                     <span className="hidden md:block text-sm font-medium text-foreground">Log in</span>
-                </Link>
+                </Link> */}
             </aside>
         </div>
     );
